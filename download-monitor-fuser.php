@@ -35,7 +35,7 @@ class DMFUserPlugin {
 
     add_action('admin_init', array($this,'dmfu_admin_metabox') );
     add_action('save_post', array($this,'dmfu_save_metabox') );
-    add_shortcode( 'download_user', array( $this, 'download_user' ) );
+    add_shortcode( 'download_user', array( $this, 'dmfu_download_user' ) );
   }
 
   /**
@@ -89,7 +89,7 @@ class DMFUserPlugin {
   *
   * @return string
   */
-  function download_user()
+  function dmfu_download_user()
       $current_user = wp_get_current_user();
 
       $args = array(
