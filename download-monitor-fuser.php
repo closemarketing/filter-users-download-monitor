@@ -89,7 +89,7 @@ class DMFUserPlugin {
   *
   * @return string
   */
-  function dmfu_download_user()
+  function dmfu_download_user() {
       $current_user = wp_get_current_user();
 
       $args = array(
