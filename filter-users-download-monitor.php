@@ -10,7 +10,7 @@ Requires at least: 3.9
 Author: Closemarketing
 Author URI: https://www.closemarketing.es/
 
-Text Domain: dmfu
+Text Domain: filter-users-download-monitor
 Domain Path: /languages/
 
 License: GPL
@@ -54,7 +54,7 @@ class DMFUserPlugin {
 
     //* Gets the forms in array
     $users = get_users();
-    echo '<p>'.__('Only this users will see this file:','dmfu').'</p>';
+    echo '<p>'.__('Only this users will see this file:','filter-users-download-monitor').'</p>';
     foreach( $users as $user ):
         echo '<p><input type="checkbox" name="dmfu_userid_'.$user->ID.'" id="dmfu_userid_'.$user->ID.'" value="yes" ';
         if ( isset ( $checkboxMeta['dmfu_userid_'.$user->ID] ) ) checked( $checkboxMeta['dmfu_userid_'.$user->ID][0], 'yes' );
