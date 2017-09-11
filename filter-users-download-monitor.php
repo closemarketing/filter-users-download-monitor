@@ -4,7 +4,7 @@ Plugin Name: Filter Users Addon for Download Monitor
 Plugin URI: http://www.closemarketing.es/servicios/wordpress-plugins/gravity-forms-es/
 Description: Adds to Download monitor the ability to filter Downloads by current user
 
-Version: 1.0
+Version: 1.1
 Requires at least: 3.9
 
 Author: Closemarketing
@@ -14,11 +14,13 @@ Text Domain: filter-users-download-monitor
 Domain Path: /languages/
 
 License: GPL
-*/
-if ( ! defined( 'ABSPATH' ) ) {
+ */
+if (!defined('ABSPATH')) {
 	exit;
 } // Exit if accessed directly
 
+//Loads translation
+load_plugin_textdomain('widgets-so-genesis', false, dirname(plugin_basename(__FILE__)) . '/languages/');
 
 class DMFUserPlugin {
 	/**
@@ -27,95 +29,98 @@ class DMFUserPlugin {
 	 * @var string
 	 */
 	private $file;
-  /**
+	/**
 	 * Construct and intialize
 	 */
-	public function __construct( $file ) {
+	public function __construct($file) {
 		$this->file = $file;
 
-    add_action('admin_init', array($this,'dmfu_admin_metabox') );
-    add_action('save_post', array($this,'dmfu_save_metabox') );
-    add_shortcode( 'download_user', array( $this, 'dmfu_download_user' ) );
-  }
+		add_action('admin_init', array($this, 'dmfu_admin_metabox'));
+		add_action('save_post', array($this, 'dmfu_save_metabox'));
+		add_shortcode('download_user', array($this, 'dmfu_download_user'));
+	}
 
-  /**
-  * Init for metabox
-  */
-  function dmfu_admin_metabox(){
-    add_meta_box('dmfu_users', __('Filter by user','dmfu'), array($this,'meta_options'), 'dlm_download', 'side', 'high');
-  }
+	/**
+	 * Init for metabox
+	 */
+	function dmfu_admin_metabox() {
+		add_meta_box('dmfu_users', __('Filter by user', 'filter-users-download-monitor'), array($this, 'meta_options'), 'dlm_download', 'side', 'high');
+	}
 
-  /**
-  * Metbox Select user
-  */
-  function meta_options(){
+	/**
+	 * Metbox Select user
+	 */
+	function meta_options() {
 
-    $checkboxMeta = get_post_meta(get_the_id());
+		$checkboxMeta = get_post_meta(get_the_id());
 
-    //* Gets the forms in array
-    $users = get_users();
-    echo '<p>'.__('Only this users will see this file:','filter-users-download-monitor').'</p>';
-    foreach( $users as $user ):
-        echo '<p><input type="checkbox" name="dmfu_userid_'.$user->ID.'" id="dmfu_userid_'.$user->ID.'" value="yes" ';
-        if ( isset ( $checkboxMeta['dmfu_userid_'.$user->ID] ) ) checked( $checkboxMeta['dmfu_userid_'.$user->ID][0], 'yes' );
-        echo ' />'.$user->display_name.'</p>';
-    endforeach;
-  }
+		//* Gets the forms in array
+		$users = get_users();
+		echo '<p>' . __('Only this users will see this file:', 'filter-users-download-monitor') . '</p>';
+		foreach ($users as $user):
+			echo '<p><input type="checkbox" name="dmfu_userid_' . $user->ID . '" id="dmfu_userid_' . $user->ID . '" value="yes" ';
+			if (isset($checkboxMeta['dmfu_userid_' . $user->ID])) {
+				checked($checkboxMeta['dmfu_userid_' . $user->ID][0], 'yes');
+			}
 
-  function dmfu_save_metabox( $post_id ) {
+			echo ' />' . $user->display_name . '</p>';
+		endforeach;
+	}
 
-    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
-        return;
+	function dmfu_save_metabox($post_id) {
 
-    //* Gets the forms in array
-    $users = get_users();
-    foreach( $users as $user ):
-      //saves checbox meta
-      if( isset( $_POST[ 'dmfu_userid_'.$user->ID ] ) ) {
-          update_post_meta( $post_id, 'dmfu_userid_'.$user->ID, 'yes' );
-      } else {
-          update_post_meta( $post_id, 'dmfu_userid_'.$user->ID, 'no' );
-      }
-    endforeach;
+		if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+			return;
+		}
 
-  } //save metabox
+		//* Gets the forms in array
+		$users = get_users();
+		foreach ($users as $user):
+			//saves checbox meta
+			if (isset($_POST['dmfu_userid_' . $user->ID])) {
+				update_post_meta($post_id, 'dmfu_userid_' . $user->ID, 'yes');
+			} else {
+				update_post_meta($post_id, 'dmfu_userid_' . $user->ID, 'no');
+			}
+		endforeach;
 
-  /**
-  * download function for user.
-  *
-  * @access public
-  *
-  * @param array $atts
-  *
-  * @return string
-  */
-  function dmfu_download_user() {
-      $current_user = wp_get_current_user();
+	} //save metabox
 
-      $args = array(
-      	'post_type'  => 'dlm_download',
-      	'meta_query' => array(
-      		array(
-      			'key'     => 'dmfu_userid_'.$current_user->ID,
-      			'value'   => 'yes',
-      			'compare' => 'IN',
-      		),
-      	),
-      );
-      $query = new WP_Query( $args );
-      if ( $query->have_posts() ) {
-      	while ( $query->have_posts() ) {
-          $query->the_post();
-          echo do_shortcode( '[download id="'.get_the_id().'"]' );
-      	}
-      	/* Restore original Post Data */
-      	wp_reset_postdata();
-      }
-  }
+	/**
+	 * download function for user.
+	 *
+	 * @access public
+	 *
+	 * @param array $atts
+	 *
+	 * @return string
+	 */
+	function dmfu_download_user() {
+		$current_user = wp_get_current_user();
 
+		$args = array(
+			'post_type'  => 'dlm_download',
+			'meta_query' => array(
+				array(
+					'key'     => 'dmfu_userid_' . $current_user->ID,
+					'value'   => 'yes',
+					'compare' => 'IN',
+				),
+			),
+		);
+		$query = new WP_Query($args);
+		if ($query->have_posts()) {
+			while ($query->have_posts()) {
+				$query->the_post();
+				echo do_shortcode('[download id="' . get_the_id() . '"]');
+			}
+			/* Restore original Post Data */
+			wp_reset_postdata();
+		}
+	}
 
 } //from class
 
 global $dmfuser_plugin;
 
-$dmfuser_plugin = new DMFUserPlugin( __FILE__ );
+$dmfuser_plugin = new DMFUserPlugin(__FILE__);
