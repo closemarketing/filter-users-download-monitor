@@ -4,7 +4,7 @@ Plugin Name: Filter Users Addon for Download Monitor
 Plugin URI: http://www.closemarketing.es/servicios/wordpress-plugins/gravity-forms-es/
 Description: Adds to Download monitor the ability to filter Downloads by current user
 
-Version: 1.1
+Version: 1.2
 Requires at least: 3.9
 
 Author: Closemarketing
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 } // Exit if accessed directly
 
 //Loads translation
-load_plugin_textdomain('widgets-so-genesis', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+load_plugin_textdomain('filter-users-download-monitor', false, dirname(plugin_basename(__FILE__)) . '/languages/');
 
 class DMFUserPlugin {
 	/**
@@ -110,10 +110,12 @@ class DMFUserPlugin {
 		);
 		$query = new WP_Query($args);
 		if ($query->have_posts()) {
+			echo '<ul class="dlm-downloads">';
 			while ($query->have_posts()) {
 				$query->the_post();
-				echo do_shortcode('[download id="' . get_the_id() . '"]');
+				echo '<li>' . do_shortcode('[download id="' . get_the_id() . '"]') . '</li>';
 			}
+			echo '</ul>';
 			/* Restore original Post Data */
 			wp_reset_postdata();
 		}

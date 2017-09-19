@@ -4,8 +4,8 @@ Tags: download-monitor, addon, filter, users
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZYGC6AT5JFQVE
 Requires at least: 3.9
 Tested up to: 4.7.2
-Stable tag: 1.1
-Version: 1.0
+Stable tag: 1.2
+Version: 1.2
 
 Adds to Download monitor the ability to filter Downloads by current user.
 
@@ -30,6 +30,8 @@ WordPress installation and then activate the Plugin from Plugins page.
 
 
 == Changelog ==
+= 1.2 =
+*     Some fixes in HTML
 
 = 1.1 =
 *     Make translatable
