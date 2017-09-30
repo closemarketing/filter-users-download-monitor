@@ -7,11 +7,11 @@ Tested up to: 4.8.2
 Stable tag: 1.3
 Version: 1.3
 
-Adds to Download monitor the ability to filter Downloads by current user.
+Adds to Download monitor the ability to filter Downloads by current user or roles.
 
 == Description ==
 
-Use the shortcode [download_user] to show all downloads filtered by a user.
+Use the shortcode [download_user] to show all downloads filtered by a user or roles.
 
 You can use the option category to filter the downloads in a category, for example: [download_user category="slug,slug2"]
 
