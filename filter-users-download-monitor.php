@@ -4,7 +4,7 @@ Plugin Name: Filter Users Addon for Download Monitor
 Plugin URI: http://www.closemarketing.es/servicios/wordpress-plugins/gravity-forms-es/
 Description: Adds to Download monitor the ability to filter Downloads by current user
 
-Version: 1.2
+Version: 1.3
 Requires at least: 3.9
 
 Author: Closemarketing
@@ -44,7 +44,8 @@ class DMFUserPlugin {
 	 * Init for metabox
 	 */
 	function dmfu_admin_metabox() {
-		add_meta_box('dmfu_users', __('Filter by user', 'filter-users-download-monitor'), array($this, 'meta_options'), 'dlm_download', 'side', 'high');
+		add_meta_box('dmfu_users', __('Filter by user', 'filter-users-download-monitor'), array($this, 'meta_options'), 'dlm_download', 'normal', 'high');
+		add_meta_box('dmfu_users_role', __('Filter by role', 'filter-users-download-monitor'), array($this, 'meta_options_role'), 'dlm_download', 'normal', 'high');
 	}
 
 	/**
@@ -56,7 +57,7 @@ class DMFUserPlugin {
 
 		//* Gets the forms in array
 		$users = get_users();
-		echo '<p>' . __('Only this users will see this file:', 'filter-users-download-monitor') . '</p>';
+		echo '<p>' . __('Only these users will see this file:', 'filter-users-download-monitor') . '</p>';
 		foreach ($users as $user):
 			echo '<p><input type="checkbox" name="dmfu_userid_' . $user->ID . '" id="dmfu_userid_' . $user->ID . '" value="yes" ';
 			if (isset($checkboxMeta['dmfu_userid_' . $user->ID])) {
@@ -65,6 +66,28 @@ class DMFUserPlugin {
 
 			echo ' />' . $user->display_name . '</p>';
 		endforeach;
+	}
+	/**
+	 * Metbox Select role
+	 */
+	function meta_options_role() {
+
+		$checkboxMeta = get_post_meta(get_the_id());
+
+		//* Gets the forms in array
+		$roles = get_editable_roles();
+		echo '<p>' . __('Only the user with these roles will see this file:', 'filter-users-download-monitor') . '</p>';
+
+		while ($role = current($roles)) {
+			echo '<p><input type="checkbox" name="dmfu_role_' . key($roles) . '" id="dmfu_role_' . key($roles) . '" value="yes" ';
+			if (isset($checkboxMeta['dmfu_role_' . key($roles)])) {
+				checked($checkboxMeta['dmfu_role_' . key($roles)][0], 'yes');
+			}
+
+			echo ' />' . $role['name'] . '</p>';
+
+			next($roles);
+		}
 	}
 
 	function dmfu_save_metabox($post_id) {
@@ -84,6 +107,19 @@ class DMFUserPlugin {
 			}
 		endforeach;
 
+		//* Gets roles
+
+		$roles = get_editable_roles();
+		while ($role = current($roles)) {
+			if (isset($_POST['dmfu_role_' . key($roles)])) {
+				update_post_meta($post_id, 'dmfu_role_' . key($roles), 'yes');
+			} else {
+				update_post_meta($post_id, 'dmfu_role_' . key($roles), 'no');
+			}
+
+			next($roles);
+		}
+
 	} //save metabox
 
 	/**
@@ -95,9 +131,16 @@ class DMFUserPlugin {
 	 *
 	 * @return string
 	 */
-	function dmfu_download_user() {
+	function dmfu_download_user($atts, $content = null) {
+		$att = shortcode_atts(array(
+			'category' => '',
+		), $atts);
+		//array of downloads
+		$array_dwnld = array();
+
 		$current_user = wp_get_current_user();
 
+		//checks for the user
 		$args = array(
 			'post_type'  => 'dlm_download',
 			'meta_query' => array(
@@ -108,16 +151,71 @@ class DMFUserPlugin {
 				),
 			),
 		);
+		if ($att['category']) {
+			$args = array_merge($args, array(
+				'tax_query' => array(
+					array(
+						'taxonomy' => 'dlm_download_category',
+						'field'    => 'slug',
+						'terms'    => $att['category'],
+					),
+				),
+			));
+		}
+
 		$query = new WP_Query($args);
 		if ($query->have_posts()) {
-			echo '<ul class="dlm-downloads">';
+
 			while ($query->have_posts()) {
 				$query->the_post();
-				echo '<li>' . do_shortcode('[download id="' . get_the_id() . '"]') . '</li>';
+				$array_dwnld[] = get_the_id();
 			}
-			echo '</ul>';
 			/* Restore original Post Data */
 			wp_reset_postdata();
+		}
+		//checks for role
+		foreach ($current_user->roles as $role_item) {
+			$args = array(
+				'post_type'  => 'dlm_download',
+				'meta_query' => array(
+					array(
+						'key'     => 'dmfu_role_' . $role_item,
+						'value'   => 'yes',
+						'compare' => 'IN',
+					),
+				),
+			);
+			if ($att['category']) {
+				$args = array_merge($args, array(
+					'tax_query' => array(
+						array(
+							'taxonomy' => 'dlm_download_category',
+							'field'    => 'slug',
+							'terms'    => $att['category'],
+						),
+					),
+				));
+			}
+			$query = new WP_Query($args);
+			if ($query->have_posts()) {
+
+				while ($query->have_posts()) {
+					$query->the_post();
+					$array_dwnld[] = get_the_id();
+				}
+				/* Restore original Post Data */
+				wp_reset_postdata();
+			}
+		}
+
+		//Prints the files download
+		if ($array_dwnld) {
+			$array_dwnld = array_unique($array_dwnld);
+			echo '<ul class="dlm-downloads">';
+			foreach ($array_dwnld as $dwnld_item):
+				echo '<li>' . do_shortcode('[download id="' . $dwnld_item . '"]') . '</li>';
+			endforeach;
+			echo '</ul>';
 		}
 	}
 
