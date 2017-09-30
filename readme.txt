@@ -13,6 +13,8 @@ Adds to Download monitor the ability to filter Downloads by current user.
 
 Use the shortcode [download_user] to show all downloads filtered by a user.
 
+You can use the option category to filter the downloads in a category, for example: [download_user category="slug,slug2"]
+
 Others Plugins:
 
 - [Gravity Forms CRM Addon](http://codecanyon.net/item/gravity-forms-crm-addon/10521695)
