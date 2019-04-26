@@ -143,6 +143,7 @@ class DMFUserPlugin {
 		//checks for the user
 		$args = array(
 			'post_type'  => 'dlm_download',
+			'posts_per_page' => -1,
 			'meta_query' => array(
 				array(
 					'key'     => 'dmfu_userid_' . $current_user->ID,
