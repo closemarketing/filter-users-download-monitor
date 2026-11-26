@@ -3,7 +3,7 @@ Contributors: closemarketing, davidperez
 Tags: download-monitor, addon, filter, users
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZYGC6AT5JFQVE
 Requires at least: 3.9
-Tested up to: 4.8.2
+Tested up to: 7.2
 Stable tag: 1.3
 Version: 1.3
 
